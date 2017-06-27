@@ -1,0 +1,29 @@
+LoadModule auth_openidc_module modules/mod_auth_openidc.so
+
+OIDCProviderMetadataURL http://test.lantz.com:3000/.well-known/openid-configuration
+OIDCClientID oidcCLIENT
+OIDCClientSecret 91c0fabd17a9db3cfe53f28a10728e39b7724e234ecd78dba1fb05b909fb4ed98c476afc50a634d52808ad3cb2ea744bc8c3b45b7149ec459b5c416a6e8db242
+
+OIDCRedirectURI http://test.lantz.com:8080/example/redirect_uri
+OIDCCryptoPassphrase nerfbunny
+
+OIDCScope "openid email profile sso"
+OIDCRemoteUserClaim sub
+OIDCClaimPrefix "CLAIM_"
+#OIDCHTMLErrorTemplate "/var/www/html/error.template"
+#OIDCDefaultURL "http://test.lantz.com:8080/error.php"
+
+<Location /example/>
+   AuthType openid-connect
+   Require claim poc:yes
+   ErrorDocument 401 /error.php
+</Location>
+
+<Directory /var/www/html/example/>
+   AllowOverride None
+   Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+   Order allow,deny
+   Allow from all
+</Directory>
+
+Redirect permanent /logout http://test.lantz.com:8080/example/redirect_uri?logout=http://test.lantz.com:8080/loggedOut.html
